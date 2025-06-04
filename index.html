@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NQ - Unicode Zeichen Entferner mit Gemini ✨</title>
+    <title>NQ - Unicode Zeichen Entferner</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -57,84 +57,42 @@
         .nq-dark-blue { color: #2a394d; }
         .nq-teal { color: #39a7a5; }
         .bg-nq-teal { background-color: #39a7a5; }
-        .hover-bg-nq-teal-darker:hover { background-color: #2f8e8b; } /* Slightly darker teal for hover */
+        .hover-bg-nq-teal-darker:hover { background-color: #2f8e8b; }
         .border-nq-teal { border-color: #39a7a5; }
-        .focus-ring-nq-teal:focus { /* Adjusted for Tailwind JIT, direct ring color might need !important or specific class */
+        .focus-ring-nq-teal:focus {
             --tw-ring-color: #39a7a5;
-            box-shadow: 0 0 0 2px #39a7a5; /* Fallback or alternative focus ring */
+            box-shadow: 0 0 0 2px #39a7a5;
         }
-         .focus\:ring-nq-teal:focus { /* More specific Tailwind focus */
+         .focus\:ring-nq-teal:focus {
             --tw-ring-opacity: 1;
-            --tw-ring-color: #39a7a5 !important; /* Ensure it overrides */
+            --tw-ring-color: #39a7a5 !important;
          }
 
-
-        /* Modal styles */
-        .modal {
-            display: none; 
-            position: fixed; 
-            z-index: 100; 
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto; 
-            background-color: rgba(0,0,0,0.5); 
-            align-items: center;
-            justify-content: center;
-        }
-        .modal-content {
-            background-color: #fefefe;
-            margin: auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-            max-width: 600px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
-            position: relative; 
-        }
-        .modal-header {
-            padding-bottom: 10px;
-            border-bottom: 1px solid #eee;
-            font-size: 1.25rem; /* Adjusted size */
-            font-weight: 600; /* Inter Semibold for modal title */
-            color: #333;
-        }
-        .modal-body {
-            padding-top:10px;
-            padding-bottom: 20px;
-            white-space: pre-wrap; 
-            max-height: 60vh;
+        /* Unicode Highlight Styles */
+        .unicode-analysis-output {
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            border: 1px solid #cbd5e1; /* slate-300 */
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            background-color: #f8fafc; /* slate-50 */
+            min-height: 100px;
+            max-height: 300px;
             overflow-y: auto;
         }
-        .close-button {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
+        .unicode-highlight {
+            background-color: #fecaca; /* red-200 */
+            color: #7f1d1d; /* red-900 */
+            padding: 0.1em 0.3em;
+            border-radius: 0.2em;
             font-weight: bold;
-            position: absolute;
-            top: 10px;
-            right: 20px;
+            border: 1px solid #fca5a5; /* red-300 */
         }
-        .close-button:hover,
-        .close-button:focus {
-            color: black;
-            text-decoration: none;
-            cursor: pointer;
-        }
-        .loader {
-            border: 5px solid #f3f3f3; 
-            border-top: 5px solid #39a7a5; /* NQ Teal for loader */
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .unicode-highlight.nl-char { /* Newline characters, more subtle */
+             background-color: #ccfbf1; /* teal-100 */
+             color: #115e59; /* teal-700 */
+             border: 1px solid #99f6e4; /* teal-200 */
         }
     </style>
 </head>
@@ -142,16 +100,14 @@
 
     <div class="bg-white p-6 sm:p-8 rounded-xl shadow-2xl w-full max-w-2xl">
         <header class="mb-6 sm:mb-8 text-center">
-            <!-- Actual Logo Image -->
             <img src="NQ - Logo-neu-transparent (3).png" alt="NEUROQOM Logo" class="h-12 sm:h-16 mx-auto mb-4" onerror="this.style.display='none'; document.getElementById('textLogo').style.display='block';">
-            <!-- Fallback Text Logo (if image fails or for local dev without image path) -->
             <div id="textLogo" class="text-4xl sm:text-5xl font-bold mb-4" style="display:none;">
                  <span class="nq-dark-blue">NEURO</span><span class="nq-teal">QOM</span>
             </div>
 
-            <h1 class="text-2xl sm:text-3xl font-bold text-slate-800">NQ - Unicode Zeichen Entferner <span class="nq-teal">mit Gemini ✨</span></h1>
+            <h1 class="text-2xl sm:text-3xl font-bold text-slate-800">NQ - Unicode Zeichen Entferner</h1>
             <p class="text-slate-500 mt-2 text-sm sm:text-base">
-                Bereinigt Texte und nutzt KI für Zusammenfassungen und Verbesserungen.
+                Bereinigt Texte und visualisiert problematische Sonderzeichen.
             </p>
         </header>
 
@@ -163,38 +119,28 @@
                         Eingabe löschen
                     </button>
                 </div>
-                <textarea id="inputText" rows="6" class="w-full p-3 border border-slate-300 rounded-lg shadow-sm focus:ring-2 focus:border-nq-teal focus-ring-nq-teal transition-shadow" placeholder="Fügen Sie hier Ihren Text ein..."></textarea>
+                <textarea id="inputText" rows="5" class="w-full p-3 border border-slate-300 rounded-lg shadow-sm focus:ring-2 focus:border-nq-teal focus-ring-nq-teal transition-shadow" placeholder="Fügen Sie hier Ihren Text ein..."></textarea>
             </div>
 
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-                <button id="cleanButton" class="w-full sm:w-auto bg-nq-teal hover-bg-nq-teal-darker text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-150 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus-ring-nq-teal focus:ring-opacity-50">
-                    Text bereinigen
+            <div class="mb-6 text-center">
+                <button id="analyzeAndCleanButton" class="w-full sm:w-auto bg-nq-teal hover-bg-nq-teal-darker text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-150 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus-ring-nq-teal focus:ring-opacity-50">
+                    Text analysieren & bereinigen
                 </button>
-                <div class="tooltip">
-                    <span class="text-sm text-slate-500 cursor-default flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-1 text-slate-400">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
-                        </svg>
-                        Welche Zeichen werden entfernt?
-                    </span>
-                    <span class="tooltiptext">Entfernt Steuerzeichen (exkl. Tab), Nullbreitenzeichen, Soft Hyphens, spezielle Leerzeichen (außer normalem Leerzeichen) und andere unsichtbare Formatierungsmarkierungen.</span>
-                </div>
+            </div>
+
+            <div class="mb-4">
+                <label for="unicodeAnalysisOutput" class="block text-sm font-medium text-slate-700 mb-1">Analyse der Unicode-Zeichen (Original mit Hervorhebungen):</label>
+                <div id="unicodeAnalysisOutput" class="unicode-analysis-output bg-slate-50 p-3 rounded-lg shadow-sm">Hier erscheint die Analyse...</div>
             </div>
             
             <div>
-                <label for="outputText" class="block text-sm font-medium text-slate-700 mb-1">Bereinigter Text:</label>
-                <textarea id="outputText" rows="6" class="w-full p-3 border border-slate-300 rounded-lg shadow-sm bg-slate-50 focus:ring-2 focus:border-nq-teal focus-ring-nq-teal transition-shadow" readonly placeholder="Der bereinigte Text erscheint hier..."></textarea>
+                <label for="outputText" class="block text-sm font-medium text-slate-700 mb-1">Bereinigter Text (Formatierung weitgehend erhalten):</label>
+                <textarea id="outputText" rows="5" class="w-full p-3 border border-slate-300 rounded-lg shadow-sm bg-slate-50 focus:ring-2 focus:border-nq-teal focus-ring-nq-teal transition-shadow" readonly placeholder="Der bereinigte Text erscheint hier..."></textarea>
             </div>
             
-            <div class="mt-4 flex flex-col sm:flex-row justify-center items-center gap-3">
+            <div class="mt-4 text-center"> <!-- Centered the copy button -->
                 <button id="copyButton" class="w-full sm:w-auto bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium py-2 px-4 rounded-lg transition-colors duration-150 ease-in-out text-sm">
-                    Ergebnis kopieren
-                </button>
-                <button id="summarizeButton" class="w-full sm:w-auto bg-sky-500 hover:bg-sky-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-150 ease-in-out text-sm">
-                    ✨ Text Zusammenfassen
-                </button>
-                <button id="improveButton" class="w-full sm:w-auto bg-purple-500 hover:bg-purple-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-150 ease-in-out text-sm">
-                    ✨ Text Verbessern
+                    Bereinigten Text kopieren
                 </button>
             </div>
              <p id="copyMessage" class="text-sm text-center text-green-600 mt-3 h-5"></p> 
@@ -206,52 +152,84 @@
                 &copy; 2025 <a href="https://neuroqom.com" target="_blank" class="nq-teal hover:underline">NEUROQOM</a>. Alle Rechte vorbehalten.
             </p>
              <p class="text-xs text-slate-400 mt-4">
-                Dieses Tool funktioniert vollständig in Ihrem Browser. Es werden keine Daten an einen Server gesendet, außer für KI-Funktionen.
+                Dieses Tool funktioniert vollständig in Ihrem Browser. Es werden keine Daten an einen Server gesendet.
             </p>
         </footer>
     </div>
 
-    <!-- Modal Structure -->
-    <div id="geminiModal" class="modal">
-        <div class="modal-content">
-            <header class="modal-header">
-                <span id="modalTitle" class="font-semibold">KI Ergebnis</span> <!-- Inter Semibold (600) -->
-                <span class="close-button" id="closeModalButton">&times;</span>
-            </header>
-            <div class="modal-body" id="modalBody">
-                 <div id="modalLoader" class="loader" style="display: none;"></div>
-                <p id="geminiResponse"></p>
-            </div>
-        </div>
-    </div>
+    <!-- Gemini Modal and related JS functionality has been removed -->
 
     <script>
         // DOM Elements
         const inputText = document.getElementById('inputText');
+        const unicodeAnalysisOutput = document.getElementById('unicodeAnalysisOutput');
         const outputText = document.getElementById('outputText');
-        const cleanButton = document.getElementById('cleanButton');
+        const analyzeAndCleanButton = document.getElementById('analyzeAndCleanButton');
         const copyButton = document.getElementById('copyButton');
         const copyMessage = document.getElementById('copyMessage');
         const clearInputButton = document.getElementById('clearInputButton');
-        const summarizeButton = document.getElementById('summarizeButton');
-        const improveButton = document.getElementById('improveButton');
-
-        const geminiModal = document.getElementById('geminiModal');
-        const modalTitle = document.getElementById('modalTitle');
-        const modalBody = document.getElementById('modalBody');
-        const modalLoader = document.getElementById('modalLoader');
-        const geminiResponse = document.getElementById('geminiResponse');
-        const closeModalButton = document.getElementById('closeModalButton');
         const textLogoFallback = document.getElementById('textLogo');
 
+        // Regex for characters to be CLEANED (removed), preserving \n and \r
+        const problematicCharsToCleanRegex = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F\u00AD\u200B-\u200F\u2028-\u202E\u2060-\u206F\uFEFF]/g;
 
-        // Regex for problematic Unicode characters
-        const problematicCharsRegex = /[\u0000-\u0008\u000A-\u001F\u007F-\u009F\u00AD\u200B-\u200F\u2028-\u202E\u2060-\u206F\uFEFF]/g;
+        // Characters to HIGHLIGHT with their placeholders
+        const unicodeCharMapForHighlighting = [
+            { regex: /\r\n/g, placeholder: '[CRLF]', name: 'Carriage Return + Line Feed', class: 'nl-char' },
+            { regex: /\n/g, placeholder: '[LF]', name: 'Line Feed', class: 'nl-char' },
+            { regex: /\r/g, placeholder: '[CR]', name: 'Carriage Return', class: 'nl-char' },
+            { regex: /\u0000/g, placeholder: '[NUL]', name: 'Null character' },
+            { regex: /\u0001/g, placeholder: '[SOH]', name: 'Start of Heading' },
+            { regex: /\u0002/g, placeholder: '[STX]', name: 'Start of Text' },
+            { regex: /\u0003/g, placeholder: '[ETX]', name: 'End of Text' },
+            { regex: /\u0004/g, placeholder: '[EOT]', name: 'End of Transmission' },
+            { regex: /\u0005/g, placeholder: '[ENQ]', name: 'Enquiry' },
+            { regex: /\u0006/g, placeholder: '[ACK]', name: 'Acknowledge' },
+            { regex: /\u0007/g, placeholder: '[BEL]', name: 'Bell' },
+            { regex: /\u0008/g, placeholder: '[BS]', name: 'Backspace' },
+            { regex: /\u000B/g, placeholder: '[VT]', name: 'Vertical Tab' },
+            { regex: /\u000C/g, placeholder: '[FF]', name: 'Form Feed' },
+            { regex: /\u000E/g, placeholder: '[SO]', name: 'Shift Out' },
+            { regex: /\u000F/g, placeholder: '[SI]', name: 'Shift In' },
+            { regex: /[\u0010-\u001F]/g, placeholder: '[CTL]', name: 'Control Character' },
+            { regex: /\u007F/g, placeholder: '[DEL]', name: 'Delete' },
+            { regex: /[\u0080-\u009F]/g, placeholder: '[CTL]', name: 'C1 Control Character' },
+            { regex: /\u00AD/g, placeholder: '[SHY]', name: 'Soft Hyphen' },
+            { regex: /\u200B/g, placeholder: '[ZWSP]', name: 'Zero Width Space' },
+            { regex: /\u200C/g, placeholder: '[ZWNJ]', name: 'Zero Width Non-Joiner' },
+            { regex: /\u200D/g, placeholder: '[ZWJ]', name: 'Zero Width Joiner' },
+            { regex: /\u200E/g, placeholder: '[LRM]', name: 'Left-to-Right Mark' },
+            { regex: /\u200F/g, placeholder: '[RLM]', name: 'Right-to-Left Mark' },
+            { regex: /\u2028/g, placeholder: '[LSEP]', name: 'Line Separator' },
+            { regex: /\u2029/g, placeholder: '[PSEP]', name: 'Paragraph Separator' },
+            { regex: /\u202A/g, placeholder: '[LRE]', name: 'Left-to-Right Embedding' },
+            { regex: /\u202B/g, placeholder: '[RLE]', name: 'Right-to-Left Embedding' },
+            { regex: /\u202C/g, placeholder: '[PDF]', name: 'Pop Directional Formatting' },
+            { regex: /\u202D/g, placeholder: '[LRO]', name: 'Left-to-Right Override' },
+            { regex: /\u202E/g, placeholder: '[RLO]', name: 'Right-to-Left Override' },
+            { regex: /\u2060/g, placeholder: '[WJ]', name: 'Word Joiner' },
+            { regex: /[\u2061-\u2064]/g, placeholder: '[IFORMAT]', name: 'Invisible Formatting' },
+            { regex: /[\u206A-\u206F]/g, placeholder: '[IFORMAT]', name: 'Invisible Formatting' },
+            { regex: /\uFEFF/g, placeholder: '[BOM/ZWNBSP]', name: 'Byte Order Mark / Zero Width No-Break Space' }
+        ];
 
-        // Event Listeners
-        cleanButton.addEventListener('click', () => {
+        function highlightUnicodeChars(text) {
+            let highlightedText = text;
+            unicodeCharMapForHighlighting.forEach(charInfo => {
+                const span = document.createElement('span');
+                span.className = `unicode-highlight ${charInfo.class || ''}`;
+                span.textContent = charInfo.placeholder;
+                span.title = `${charInfo.name} (U+${charInfo.regex.source.charCodeAt(0).toString(16).toUpperCase().padStart(4, '0')})`;
+                highlightedText = highlightedText.replace(charInfo.regex, span.outerHTML);
+            });
+            return highlightedText;
+        }
+
+        analyzeAndCleanButton.addEventListener('click', () => {
             const rawText = inputText.value;
-            const cleanedText = rawText.replace(problematicCharsRegex, '');
+            const analysisHtml = highlightUnicodeChars(rawText);
+            unicodeAnalysisOutput.innerHTML = analysisHtml;
+            const cleanedText = rawText.replace(problematicCharsToCleanRegex, '');
             outputText.value = cleanedText;
             copyMessage.textContent = ''; 
         });
@@ -264,7 +242,7 @@
                 tempTextArea.select();
                 try {
                     document.execCommand('copy'); 
-                    copyMessage.textContent = 'Text in die Zwischenablage kopiert!';
+                    copyMessage.textContent = 'Bereinigter Text in die Zwischenablage kopiert!';
                     copyMessage.classList.remove('text-red-600');
                     copyMessage.classList.add('text-green-600');
                 } catch (err) {
@@ -285,6 +263,7 @@
         
         clearInputButton.addEventListener('click', () => {
             inputText.value = '';
+            unicodeAnalysisOutput.innerHTML = 'Hier erscheint die Analyse...';
             outputText.value = ''; 
             copyMessage.textContent = ''; 
             inputText.focus(); 
@@ -303,104 +282,14 @@
             }
         });
         
-        // Fallback for logo if image fails to load
-        // This needs to be triggered by the onerror event of an actual <img> tag if you use one.
-        // If the logo is purely text-based as styled before, this is not needed.
-        // For the provided <img> tag:
-        // The onerror attribute is: onerror="this.style.display='none'; document.getElementById('textLogo').style.display='block';"
-        // Ensure textLogo is initially hidden if the img tag is present.
-        if (document.querySelector('img[alt="NEUROQOM Logo"]')) { // Check if the image tag exists
-             if(textLogoFallback) textLogoFallback.style.display = 'none'; // Hide text logo if image tag is present
+        if (document.querySelector('img[alt="NEUROQOM Logo"]')) {
+             if(textLogoFallback) textLogoFallback.style.display = 'none';
         } else if (textLogoFallback) {
-            textLogoFallback.style.display = 'block'; // Show text logo if no image tag
+            textLogoFallback.style.display = 'block';
         }
 
-
-        // --- Gemini API Integration ---
-        const API_KEY = ""; // Provided by Canvas environment
-
-        async function callGeminiAPI(prompt, textToProcess) {
-            modalLoader.style.display = 'block';
-            geminiResponse.textContent = '';
-            geminiModal.style.display = 'flex';
-
-            const fullPrompt = `${prompt}:\n\n"${textToProcess}"`;
-            let chatHistory = [{ role: "user", parts: [{ text: fullPrompt }] }];
-            const payload = { contents: chatHistory };
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;
-
-            try {
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    console.error("API Error Response:", errorData);
-                    throw new Error(`API Anfrage fehlgeschlagen mit Status: ${response.status}. Details: ${errorData?.error?.message || 'Keine Details'}`);
-                }
-
-                const result = await response.json();
-                
-                if (result.candidates && result.candidates.length > 0 &&
-                    result.candidates[0].content && result.candidates[0].content.parts &&
-                    result.candidates[0].content.parts.length > 0) {
-                    return result.candidates[0].content.parts[0].text;
-                } else {
-                    console.error("Unerwartete API Antwortstruktur:", result);
-                    throw new Error("Konnte keine gültige Antwort vom KI-Modell empfangen.");
-                }
-            } catch (error) {
-                console.error("Fehler bei der Gemini API Anfrage:", error);
-                return `Fehler: ${error.message}`;
-            } finally {
-                modalLoader.style.display = 'none';
-            }
-        }
-
-        summarizeButton.addEventListener('click', async () => {
-            const textToSummarize = outputText.value;
-            if (!textToSummarize.trim()) {
-                // Using a custom modal for alerts later, for now, browser alert.
-                // For now, simple alert. Replace with custom modal if desired.
-                // showCustomAlert("Bitte zuerst Text bereinigen oder eingeben.");
-                alert("Bitte zuerst Text bereinigen oder eingeben.");
-                return;
-            }
-            modalTitle.textContent = "✨ Zusammenfassung";
-            const summary = await callGeminiAPI("Fasse den folgenden Text kurz und prägnant zusammen. Antworte auf Deutsch.", textToSummarize);
-            geminiResponse.textContent = summary;
-        });
-
-        improveButton.addEventListener('click', async () => {
-            const textToImprove = outputText.value;
-            if (!textToImprove.trim()) {
-                // showCustomAlert("Bitte zuerst Text bereinigen oder eingeben.");
-                alert("Bitte zuerst Text bereinigen oder eingeben.");
-                return;
-            }
-            modalTitle.textContent = "✨ Textverbesserung";
-            const improvement = await callGeminiAPI("Analysiere den folgenden Text und gib konkrete Vorschläge zur Verbesserung von Grammatik, Stil und Klarheit. Gib die verbesserte Version oder klare Anweisungen aus. Antworte auf Deutsch.", textToImprove);
-            geminiResponse.textContent = improvement;
-        });
-
-        // Modal close functionality
-        closeModalButton.onclick = function() {
-            geminiModal.style.display = "none";
-        }
-        window.onclick = function(event) {
-            if (event.target == geminiModal) {
-                geminiModal.style.display = "none";
-            }
-        }
-        document.addEventListener('keydown', function(event) {
-            if (event.key === "Escape" && geminiModal.style.display === "flex") {
-                geminiModal.style.display = "none";
-            }
-        });
-
+        // Gemini API related functions (callGeminiAPI, event listeners for summarize/improve buttons)
+        // and Modal HTML/JS have been removed.
     </script>
 </body>
 </html>
