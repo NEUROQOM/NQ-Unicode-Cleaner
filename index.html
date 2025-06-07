@@ -1,295 +1,281 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NQ - Unicode Zeichen Entferner</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NQ - Unicode Zeichen Analysator & Entferner</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lato:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lato:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&display=swap">
     <style>
+        /* --- NEUROQOM-Design --- */
         body {
             font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9;
         }
-        .font-lato {
-            font-family: 'Lato', sans-serif;
+        .font-lato { font-family: 'Lato', sans-serif; }
+        .nq-dark { color: #2c3e50; }
+        .nq-teal { color: #1abc9c; }
+        .bg-nq-teal { background-color: #1abc9c; }
+        .hover-bg-nq-teal-darker:hover { background-color: #16a085; }
+        .focus-ring-nq-teal:focus-visible {
+            outline: 2px solid transparent;
+            outline-offset: 2px;
+            box-shadow: 0 0 0 3px rgba(26, 188, 156, 0.5);
         }
-        
-        .tooltip {
+
+        /* --- Tooltip-Styles (soscisurvey-Style) --- */
+        .S2Tooltip.anchor {
             position: relative;
+            color: inherit;
+            background-color: transparent;
+            cursor: default;
             display: inline-block;
         }
-        .tooltip .tooltiptext {
+        .S2Tooltip.container {
+            position: absolute;
+            z-index: 9999;
             visibility: hidden;
-            width: 240px;
-            background-color: #334155; /* Slate-700 for tooltip */
-            color: #fff;
-            text-align: center;
-            border-radius: 6px;
-            padding: 8px 10px;
-            position: absolute;
-            z-index: 10;
-            bottom: 130%;
-            left: 50%;
-            margin-left: -120px;
-            opacity: 0;
-            transition: opacity 0.3s ease-in-out;
-            font-size: 0.8rem;
-            line-height: 1.3;
+            pointer-events: none;
+            width: auto;
         }
-        .tooltip .tooltiptext::after {
-            content: "";
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            margin-left: -5px;
-            border-width: 5px;
-            border-style: solid;
-            border-color: #334155 transparent transparent transparent;
-        }
-        .tooltip:hover .tooltiptext {
+        .S2Tooltip.anchor:hover > .S2Tooltip.container {
             visibility: visible;
-            opacity: 1;
+            left: 50%;
+            bottom: 100%;
+            transform: translateX(-50%) translateY(-8px);
+        }
+        .S2Tooltip.tiptext {
+            padding: 0.5em 0.8em;
+            color: black;
+            background-color: #DDDDFF;
+            border: 1px solid #9999FF;
+            font-weight: normal;
+            text-align: left;
+            white-space: nowrap;
+            display: block;
+            text-indent: 0;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
 
-        /* NeuroQom CD Colors */
-        .nq-dark-blue { color: #2a394d; }
-        .nq-teal { color: #39a7a5; }
-        .bg-nq-teal { background-color: #39a7a5; }
-        .hover-bg-nq-teal-darker:hover { background-color: #2f8e8b; }
-        .border-nq-teal { border-color: #39a7a5; }
-        .focus-ring-nq-teal:focus {
-            --tw-ring-color: #39a7a5;
-            box-shadow: 0 0 0 2px #39a7a5;
+        /* Stile für spezielle Symbole in der Analyse */
+        .symbol {
+            color: white;
+            background-color: #64748b;
+            padding: 0.1em 0.3em;
+            margin: 0 1px;
+            border-radius: 3px;
+            font-weight: bold;
         }
-         .focus\:ring-nq-teal:focus {
-            --tw-ring-opacity: 1;
-            --tw-ring-color: #39a7a5 !important;
-         }
+        .hex {
+            color: black;
+            background-color: #a5b4fc;
+            padding: 0.1em 0.3em;
+            margin: 0 1px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
 
-        /* Unicode Highlight Styles */
-        .unicode-analysis-output {
-            font-family: monospace;
+        /* --- Analyse-Container --- */
+        #analysisOutput {
             white-space: pre-wrap;
             word-wrap: break-word;
-            border: 1px solid #cbd5e1; /* slate-300 */
-            padding: 0.75rem;
+            font-family: 'Menlo', 'Consolas', monospace;
+            font-size: 0.9em;
+            line-height: 1.8;
+            background-color: #f8fafc;
+            border: 1px solid #cbd5e1;
             border-radius: 0.5rem;
-            background-color: #f8fafc; /* slate-50 */
-            min-height: 100px;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        .unicode-highlight {
-            background-color: #fecaca; /* red-200 */
-            color: #7f1d1d; /* red-900 */
-            padding: 0.1em 0.3em;
-            border-radius: 0.2em;
-            font-weight: bold;
-            border: 1px solid #fca5a5; /* red-300 */
-        }
-        .unicode-highlight.nl-char { /* Newline characters, more subtle */
-             background-color: #ccfbf1; /* teal-100 */
-             color: #115e59; /* teal-700 */
-             border: 1px solid #99f6e4; /* teal-200 */
+            padding: 1rem;
+            min-height: 8rem;
+            overflow-x: auto;
         }
     </style>
 </head>
-<body class="bg-slate-100 min-h-screen flex flex-col items-center justify-center p-4 selection:bg-teal-200 selection:text-teal-900">
-
-    <div class="bg-white p-6 sm:p-8 rounded-xl shadow-2xl w-full max-w-2xl">
+<body class="flex items-center justify-center p-4">
+    <div class="bg-white p-6 sm:p-8 rounded-xl shadow-2xl w-full max-w-3xl">
         <header class="mb-6 sm:mb-8 text-center">
-            <img src="NQ - Logo-neu-transparent (3).png" alt="NEUROQOM Logo" class="h-12 sm:h-16 mx-auto mb-4" onerror="this.style.display='none'; document.getElementById('textLogo').style.display='block';">
-            <div id="textLogo" class="text-4xl sm:text-5xl font-bold mb-4" style="display:none;">
-                 <span class="nq-dark-blue">NEURO</span><span class="nq-teal">QOM</span>
+            <img src="NQ - Logo-neu-transparent (3).png" alt="NEUROQOM Logo" class="h-12 sm:h-16 mx-auto mb-4" id="logoImage" onerror="this.style.display='none'; if(document.getElementById('textLogo')) document.getElementById('textLogo').style.display='block';">
+            <div id="textLogo" style="display:none;" class="text-4xl sm:text-5xl font-bold mb-2">
+                <span class="nq-dark">NEURO</span><span class="nq-teal">QOM</span>
             </div>
-
-            <h1 class="text-2xl sm:text-3xl font-bold text-slate-800">NQ - Unicode Zeichen Entferner</h1>
-            <p class="text-slate-500 mt-2 text-sm sm:text-base">
-                Bereinigt Texte und visualisiert problematische Sonderzeichen.
-            </p>
+            <h1 class="text-2xl sm:text-3xl font-semibold text-slate-700 font-inter">NQ - Unicode Zeichen Analysator & Entferner</h1>
+            <p class="text-slate-500 mt-2 text-sm sm:text-base font-inter">Analysiert, visualisiert und bereinigt Texte von problematischen Unicode-Zeichen.</p>
         </header>
 
         <main>
             <div class="mb-4">
                 <div class="flex justify-between items-center mb-1">
-                    <label for="inputText" class="block text-sm font-medium text-slate-700">Text eingeben:</label>
-                    <button id="clearInputButton" class="text-xs bg-slate-200 hover:bg-slate-300 text-slate-600 font-medium py-1 px-3 rounded-md transition-colors duration-150 ease-in-out">
-                        Eingabe löschen
-                    </button>
+                    <label for="inputText" class="block text-sm font-medium text-slate-700 font-inter">Text eingeben:</label>
+                    <button id="clearInputButton" class="text-xs bg-slate-200 hover:bg-slate-300 text-slate-600 font-medium py-1 px-3 rounded-md transition-colors duration-150 ease-in-out font-inter focus-ring-nq-teal">Eingabe löschen</button>
                 </div>
-                <textarea id="inputText" rows="5" class="w-full p-3 border border-slate-300 rounded-lg shadow-sm focus:ring-2 focus:border-nq-teal focus-ring-nq-teal transition-shadow" placeholder="Fügen Sie hier Ihren Text ein..."></textarea>
+                <textarea id="inputText" rows="6" class="w-full p-3 border border-slate-300 rounded-lg shadow-sm focus:ring-2 focus-ring-nq-teal transition-shadow font-inter" placeholder="Fügen Sie hier Ihren Text ein..."></textarea>
             </div>
 
-            <div class="mb-6 text-center">
-                <button id="analyzeAndCleanButton" class="w-full sm:w-auto bg-nq-teal hover-bg-nq-teal-darker text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-150 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus-ring-nq-teal focus:ring-opacity-50">
-                    Text analysieren & bereinigen
-                </button>
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                <button id="analyzeAndCleanButton" class="w-full sm:w-auto bg-nq-teal hover-bg-nq-teal-darker text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-150 ease-in-out transform hover:scale-105 focus-ring-nq-teal font-inter">Text analysieren & bereinigen</button>
+                <div class="S2Tooltip anchor">
+                    <span class="text-sm text-slate-500 cursor-default flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-1 text-slate-400" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"/>
+                        </svg>
+                        Welche Zeichen werden entfernt/analysiert?
+                    </span>
+                    <div class="S2Tooltip container">
+                        <span class="S2Tooltip tiptext">Entfernt: Problematische Unicode-Zeichen (außer Zeilenumbrüche &amp; Tabs).<br>Visualisiert: Alle Zeichen mit Dezimal/Hex-Codes bei Hover.</span>
+                    </div>
+                </div>
             </div>
 
-            <div class="mb-4">
-                <label for="unicodeAnalysisOutput" class="block text-sm font-medium text-slate-700 mb-1">Analyse der Unicode-Zeichen (Original mit Hervorhebungen):</label>
-                <div id="unicodeAnalysisOutput" class="unicode-analysis-output bg-slate-50 p-3 rounded-lg shadow-sm">Hier erscheint die Analyse...</div>
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-slate-700 mb-1 font-inter">Analyse der Unicode-Zeichen (Original mit Hervorhebungen):</label>
+                <div id="analysisOutput">Die Analyse erscheint hier...</div>
             </div>
-            
+
             <div>
-                <label for="outputText" class="block text-sm font-medium text-slate-700 mb-1">Bereinigter Text (Formatierung weitgehend erhalten):</label>
-                <textarea id="outputText" rows="5" class="w-full p-3 border border-slate-300 rounded-lg shadow-sm bg-slate-50 focus:ring-2 focus:border-nq-teal focus-ring-nq-teal transition-shadow" readonly placeholder="Der bereinigte Text erscheint hier..."></textarea>
+                <label for="outputText" class="block text-sm font-medium text-slate-700 mb-1 font-inter">Bereinigter Text:</label>
+                <textarea id="outputText" rows="6" class="w-full p-3 border border-slate-300 rounded-lg shadow-sm bg-slate-50 focus:ring-2 focus-ring-nq-teal transition-shadow font-inter" readonly placeholder="Der bereinigte Text erscheint hier..."></textarea>
             </div>
-            
-            <div class="mt-4 text-center"> <!-- Centered the copy button -->
-                <button id="copyButton" class="w-full sm:w-auto bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium py-2 px-4 rounded-lg transition-colors duration-150 ease-in-out text-sm">
-                    Bereinigten Text kopieren
-                </button>
+
+            <div class="mt-4 text-center">
+                <button id="copyButton" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium py-2 px-4 rounded-lg transition-colors duration-150 ease-in-out text-sm font-inter focus-ring-nq-teal">Ergebnis kopieren</button>
+                <p id="copyMessage" class="text-sm text-green-600 mt-2 h-5 font-inter"></p>
             </div>
-             <p id="copyMessage" class="text-sm text-center text-green-600 mt-3 h-5"></p> 
+
+            <p class="text-xs text-slate-400 mt-6 mb-6 text-center font-inter">Dieses Tool funktioniert vollständig in Ihrem Browser. Es werden keine Daten an einen Server gesendet.</p>
         </main>
 
-        <footer class="mt-8 pt-6 border-t border-slate-200 text-center">
-            <p class="font-lato italic font-medium nq-teal text-base">Identität zuerst. Strategie folgt.</p>
-            <p class="text-xs text-slate-500 mt-2">
-                &copy; 2025 <a href="https://neuroqom.com" target="_blank" class="nq-teal hover:underline">NEUROQOM</a>. Alle Rechte vorbehalten.
-            </p>
-             <p class="text-xs text-slate-400 mt-4">
-                Dieses Tool funktioniert vollständig in Ihrem Browser. Es werden keine Daten an einen Server gesendet.
-            </p>
+        <footer class="pt-6 border-t border-slate-200 text-center">
+            <p class="text-sm font-lato font-medium italic nq-teal mb-2">Identität zuerst. Strategie folgt.</p>
+            <p class="text-xs text-slate-500 mt-2 font-inter">&copy; <span id="currentYear">2025</span> <a href="https://neuroqom.com" target="_blank" class="nq-teal hover:underline">NEUROQOM</a>. Alle Rechte vorbehalten.</p>
+            <div class="mt-2 text-xs text-slate-500 font-inter">
+                <a href="https://neuroqom.com/impressum" target="_blank" class="nq-teal hover:underline">IMPRESSUM</a>
+                <span class="mx-1">|</span>
+                <a href="https://neuroqom.com/datenschutz" target="_blank" class="nq-teal hover:underline">DATENSCHUTZ</a>
+            </div>
         </footer>
     </div>
 
-    <!-- Gemini Modal and related JS functionality has been removed -->
-
     <script>
-        // DOM Elements
-        const inputText = document.getElementById('inputText');
-        const unicodeAnalysisOutput = document.getElementById('unicodeAnalysisOutput');
-        const outputText = document.getElementById('outputText');
-        const analyzeAndCleanButton = document.getElementById('analyzeAndCleanButton');
-        const copyButton = document.getElementById('copyButton');
-        const copyMessage = document.getElementById('copyMessage');
-        const clearInputButton = document.getElementById('clearInputButton');
-        const textLogoFallback = document.getElementById('textLogo');
+        const inputText       = document.getElementById('inputText');
+        const outputText      = document.getElementById('outputText');
+        const analyzeBtn      = document.getElementById('analyzeAndCleanButton');
+        const copyBtn         = document.getElementById('copyButton');
+        const copyMsg         = document.getElementById('copyMessage');
+        const clearInputBtn   = document.getElementById('clearInputButton');
+        const analysisOutput  = document.getElementById('analysisOutput');
+        const currentYearSpan = document.getElementById('currentYear');
+        const logoImage       = document.getElementById('logoImage');
+        const textLogo        = document.getElementById('textLogo');
 
-        // Regex for characters to be CLEANED (removed), preserving \n and \r
-        const problematicCharsToCleanRegex = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F\u00AD\u200B-\u200F\u2028-\u202E\u2060-\u206F\uFEFF]/g;
+        (function() {
+            if (currentYearSpan) {
+                currentYearSpan.textContent = new Date().getFullYear();
+            }
+            if (analysisOutput) {
+                analysisOutput.innerHTML = 'Die Analyse erscheint hier...';
+            }
+            if (logoImage) {
+                logoImage.addEventListener('error', function () {
+                    logoImage.style.display = 'none';
+                    if (textLogo) textLogo.style.display = 'block';
+                });
+            }
+        })();
 
-        // Characters to HIGHLIGHT with their placeholders
-        const unicodeCharMapForHighlighting = [
-            { regex: /\r\n/g, placeholder: '[CRLF]', name: 'Carriage Return + Line Feed', class: 'nl-char' },
-            { regex: /\n/g, placeholder: '[LF]', name: 'Line Feed', class: 'nl-char' },
-            { regex: /\r/g, placeholder: '[CR]', name: 'Carriage Return', class: 'nl-char' },
-            { regex: /\u0000/g, placeholder: '[NUL]', name: 'Null character' },
-            { regex: /\u0001/g, placeholder: '[SOH]', name: 'Start of Heading' },
-            { regex: /\u0002/g, placeholder: '[STX]', name: 'Start of Text' },
-            { regex: /\u0003/g, placeholder: '[ETX]', name: 'End of Text' },
-            { regex: /\u0004/g, placeholder: '[EOT]', name: 'End of Transmission' },
-            { regex: /\u0005/g, placeholder: '[ENQ]', name: 'Enquiry' },
-            { regex: /\u0006/g, placeholder: '[ACK]', name: 'Acknowledge' },
-            { regex: /\u0007/g, placeholder: '[BEL]', name: 'Bell' },
-            { regex: /\u0008/g, placeholder: '[BS]', name: 'Backspace' },
-            { regex: /\u000B/g, placeholder: '[VT]', name: 'Vertical Tab' },
-            { regex: /\u000C/g, placeholder: '[FF]', name: 'Form Feed' },
-            { regex: /\u000E/g, placeholder: '[SO]', name: 'Shift Out' },
-            { regex: /\u000F/g, placeholder: '[SI]', name: 'Shift In' },
-            { regex: /[\u0010-\u001F]/g, placeholder: '[CTL]', name: 'Control Character' },
-            { regex: /\u007F/g, placeholder: '[DEL]', name: 'Delete' },
-            { regex: /[\u0080-\u009F]/g, placeholder: '[CTL]', name: 'C1 Control Character' },
-            { regex: /\u00AD/g, placeholder: '[SHY]', name: 'Soft Hyphen' },
-            { regex: /\u200B/g, placeholder: '[ZWSP]', name: 'Zero Width Space' },
-            { regex: /\u200C/g, placeholder: '[ZWNJ]', name: 'Zero Width Non-Joiner' },
-            { regex: /\u200D/g, placeholder: '[ZWJ]', name: 'Zero Width Joiner' },
-            { regex: /\u200E/g, placeholder: '[LRM]', name: 'Left-to-Right Mark' },
-            { regex: /\u200F/g, placeholder: '[RLM]', name: 'Right-to-Left Mark' },
-            { regex: /\u2028/g, placeholder: '[LSEP]', name: 'Line Separator' },
-            { regex: /\u2029/g, placeholder: '[PSEP]', name: 'Paragraph Separator' },
-            { regex: /\u202A/g, placeholder: '[LRE]', name: 'Left-to-Right Embedding' },
-            { regex: /\u202B/g, placeholder: '[RLE]', name: 'Right-to-Left Embedding' },
-            { regex: /\u202C/g, placeholder: '[PDF]', name: 'Pop Directional Formatting' },
-            { regex: /\u202D/g, placeholder: '[LRO]', name: 'Left-to-Right Override' },
-            { regex: /\u202E/g, placeholder: '[RLO]', name: 'Right-to-Left Override' },
-            { regex: /\u2060/g, placeholder: '[WJ]', name: 'Word Joiner' },
-            { regex: /[\u2061-\u2064]/g, placeholder: '[IFORMAT]', name: 'Invisible Formatting' },
-            { regex: /[\u206A-\u206F]/g, placeholder: '[IFORMAT]', name: 'Invisible Formatting' },
-            { regex: /\uFEFF/g, placeholder: '[BOM/ZWNBSP]', name: 'Byte Order Mark / Zero Width No-Break Space' }
-        ];
+        const problematicCharsRegexForRemoval = /[\u0000-\u0008\u000B-\u000C\u000E-\u001F\u007F-\u009F\u00A0\u00AD\u200B-\u200F\u2012-\u2015\u2028-\u202E\u2060-\u206F\u2190-\u21FF\u27F5-\u27FF\u2E3A-\u2E3B\uFEFF]/g;
 
-        function highlightUnicodeChars(text) {
-            let highlightedText = text;
-            unicodeCharMapForHighlighting.forEach(charInfo => {
-                const span = document.createElement('span');
-                span.className = `unicode-highlight ${charInfo.class || ''}`;
-                span.textContent = charInfo.placeholder;
-                span.title = `${charInfo.name} (U+${charInfo.regex.source.charCodeAt(0).toString(16).toUpperCase().padStart(4, '0')})`;
-                highlightedText = highlightedText.replace(charInfo.regex, span.outerHTML);
-            });
-            return highlightedText;
+        function escapeHtml(str) {
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
         }
 
-        analyzeAndCleanButton.addEventListener('click', () => {
-            const rawText = inputText.value;
-            const analysisHtml = highlightUnicodeChars(rawText);
-            unicodeAnalysisOutput.innerHTML = analysisHtml;
-            const cleanedText = rawText.replace(problematicCharsToCleanRegex, '');
-            outputText.value = cleanedText;
-            copyMessage.textContent = ''; 
-        });
+        function visualizeText(text) {
+            if (!analysisOutput) return;
+            let html = '';
+            for (let i = 0; i < text.length; i++) {
+                const char = text[i];
+                const code = char.charCodeAt(0);
+                const hex = code.toString(16).toUpperCase().padStart(4, '0');
 
-        copyButton.addEventListener('click', () => {
-            if (outputText.value) {
-                const tempTextArea = document.createElement('textarea');
-                tempTextArea.value = outputText.value;
-                document.body.appendChild(tempTextArea);
-                tempTextArea.select();
-                try {
-                    document.execCommand('copy'); 
-                    copyMessage.textContent = 'Bereinigter Text in die Zwischenablage kopiert!';
-                    copyMessage.classList.remove('text-red-600');
-                    copyMessage.classList.add('text-green-600');
-                } catch (err) {
-                    copyMessage.textContent = 'Kopieren fehlgeschlagen.';
-                    copyMessage.classList.remove('text-green-600');
-                    copyMessage.classList.add('text-red-600');
-                    console.error('Fallback: Oops, unable to copy', err);
+                let displayChar = escapeHtml(char);
+                let charClass = 'S2Tooltip anchor';
+
+                if (char === '\r') {
+                    displayChar = 'CR';
+                    charClass = 'symbol S2Tooltip anchor';
+                } else if (char === '\n') {
+                    displayChar = 'LF';
+                    charClass = 'symbol S2Tooltip anchor';
+                } else if (char === '\t') {
+                    displayChar = '→';
+                    charClass = 'symbol S2Tooltip anchor';
+                } else if (char === ' ') {
+                    displayChar = '·';
+                    charClass = 'symbol S2Tooltip anchor';
+                } else if (problematicCharsRegexForRemoval.test(char)) {
+                    displayChar = `U+${hex}`;
+                    charClass = 'hex S2Tooltip anchor';
+                    problematicCharsRegexForRemoval.lastIndex = 0;
                 }
-                document.body.removeChild(tempTextArea);
-                setTimeout(() => { copyMessage.textContent = ''; }, 3000);
-            } else {
-                copyMessage.textContent = 'Nichts zu kopieren.';
-                copyMessage.classList.remove('text-green-600');
-                copyMessage.classList.add('text-red-600');
-                 setTimeout(() => { copyMessage.textContent = ''; }, 3000);
-            }
-        });
-        
-        clearInputButton.addEventListener('click', () => {
-            inputText.value = '';
-            unicodeAnalysisOutput.innerHTML = 'Hier erscheint die Analyse...';
-            outputText.value = ''; 
-            copyMessage.textContent = ''; 
-            inputText.focus(); 
-        });
 
-        let originalPlaceholder = '';
-        inputText.addEventListener('focus', function() {
-            if (this.placeholder) {
-                originalPlaceholder = this.placeholder; 
-                this.placeholder = '';
+                html += `<span class="${charClass}">${displayChar}<div class="S2Tooltip container"><span class="S2Tooltip tiptext">${code}<br>0x${hex}</span></div></span>`;
+
+                if (char === '\n') {
+                    html += '<br>';
+                }
             }
-        });
-        inputText.addEventListener('blur', function() {
-            if (!this.value && originalPlaceholder) { 
-                this.placeholder = originalPlaceholder;
-            }
-        });
-        
-        if (document.querySelector('img[alt="NEUROQOM Logo"]')) {
-             if(textLogoFallback) textLogoFallback.style.display = 'none';
-        } else if (textLogoFallback) {
-            textLogoFallback.style.display = 'block';
+            analysisOutput.innerHTML = html || 'Die Analyse erscheint hier...';
         }
 
-        // Gemini API related functions (callGeminiAPI, event listeners for summarize/improve buttons)
-        // and Modal HTML/JS have been removed.
+        analyzeBtn.addEventListener('click', () => {
+            const raw = inputText.value;
+            visualizeText(raw);
+            const cleaned = raw.replace(problematicCharsRegexForRemoval, '');
+            outputText.value = cleaned;
+            if (copyMsg) copyMsg.textContent = '';
+        });
+
+        copyBtn.addEventListener('click', () => {
+            if (!outputText.value) {
+                if (copyMsg) {
+                    copyMsg.textContent = 'Nichts zu kopieren.';
+                    copyMsg.classList.add('text-red-600');
+                    setTimeout(() => { if (copyMsg) copyMsg.textContent = ''; }, 3000);
+                }
+                return;
+            }
+            const tempTextArea = document.createElement('textarea');
+            tempTextArea.value = outputText.value;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            try {
+                document.execCommand('copy');
+                if (copyMsg) {
+                    copyMsg.textContent = 'Text in die Zwischenablage kopiert!';
+                    copyMsg.classList.remove('text-red-600');
+                    copyMsg.classList.add('text-green-600');
+                }
+            } catch (err) {
+                console.error('Copy to clipboard failed:', err);
+                if (copyMsg) {
+                    copyMsg.textContent = 'Kopieren fehlgeschlagen.';
+                    copyMsg.classList.add('text-red-600');
+                }
+            } finally {
+                document.body.removeChild(tempTextArea);
+            }
+            if (copyMsg) {
+                setTimeout(() => { if (copyMsg) copyMsg.textContent = ''; }, 3000);
+            }
+        });
+
+        clearInputBtn.addEventListener('click', () => {
+            inputText.value = '';
+            outputText.value = '';
+            if (analysisOutput) analysisOutput.innerHTML = 'Die Analyse erscheint hier...';
+            if (copyMsg) copyMsg.textContent = '';
+            inputText.focus({ preventScroll: true });
+        });
     </script>
 </body>
 </html>
